@@ -1,22 +1,14 @@
+/*! \brief Test How Revert A Simple Link.
+ *         Show how revert a simple link.
+ *
+ *  Just only test code.
+ */
+
 #include <stdio.h>
 #include <string.h>
 int test000(void);
 int test001(void);
 
-int main()
-{
-    test001();
-    return 0;
-}
-
-int test000(void)
-{
-int x=10, y=15; 
-x = x++; 
-y = ++y; 
-printf("%d %d\n",x,y); 
-return 0;
-}
 
 typedef struct s_Node {
     int val;
@@ -29,30 +21,6 @@ typedef struct s_Queue {
 }Queue;
 
 static int revert_queue(Queue *queue)
-{
-    if(queue == NULL) {
-        return -1;
-    }
-    Node *pre;
-    Node *cur;
-    Node *walk;
-    pre = queue->head;
-    cur =  pre->next;
-    queue->tail = pre;
-    pre->next = NULL;
-    while(cur) 
-    {
-        walk = cur->next; 
-        cur->next = pre;
-        pre =  cur;
-        cur = walk;
-    }
-    queue->head =  pre;
-        
-    return 0;        
-}
-
-static int old_revert_queue(Queue *queue)
 {
     if(queue == NULL) {
         return -1;
@@ -99,16 +67,19 @@ int test001()
         walk = walk->next;
     }
     printf("\n");
-    revert_queue(&queue);
-    walk = queue.head;
-    while(walk) {
-        printf("%d ", walk->val);
-        walk = walk->next;
+    for(int i = 0; i < 5; i++) {
+        revert_queue(&queue);
+        walk = queue.head;
+        while(walk) {
+            printf("%d ", walk->val);
+            walk = walk->next;
+        }
+        printf("\n");
     }
-    printf("\n");
     return 0;
 }
-        
-        
-        
 
+int main()
+{
+    return test001();
+}
