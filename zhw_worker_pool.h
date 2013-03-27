@@ -13,7 +13,7 @@ void zhw_destroy_worker_pool(struct zhw_worker_pool_t *thpool);
 
 //
 //创建任务
-struct zhw_worker_pool_task_t *zhw_worker_pool_create_task(
+int zhw_worker_pool_create_task(
     struct zhw_worker_pool_t *pool,
     //任务内容
     zhw_worker_pool_task_pt func,
