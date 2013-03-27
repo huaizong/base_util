@@ -10,10 +10,12 @@
 struct zhw_worker_pool_task_t {
     size_t id;
     long prio;
+    zhw_worker_pool_task_pt call_back;
     struct zhw_worker_pool_task_t *next;
 };
 
 struct zhw_worker_pool_task_list_t {
+    size_t sid;
     pthread_mutex_t lock;
     pthread_cond_t cond;
     struct zhw_worker_pool_task_t *head;
@@ -57,11 +59,20 @@ static void *worker_walk_task(struct zhw_worker_t *worker)
 {
     struct zhw_worker_pool_t *p = worker->pool;
     struct zhw_worker_pool_task_list_t *tasks = &p->tasks;
-    pthread_mutex_lock(&tasks->lock);
-    while (tasks->head == NULL) {
-        pthread_cond_wait(&tasks->cond, &tasks->lock);
+    struct zhw_worker_pool_task_t *task = NULL;
+    while(1) {
+        pthread_mutex_lock(&tasks->lock);
+        while (tasks->head == NULL) {
+            pthread_cond_wait(&tasks->cond, &tasks->lock);
+        }
+        task = tasks->head;
+        tasks->head = task->next;
+        if(NULL == tasks->head) {
+            tasks->tail = NULL;
+        }
+        pthread_mutex_unlock(&tasks->lock);
+        task->call_back(NULL);
     }
-    pthread_mutex_unlock(&tasks->lock);
     return NULL;
 }
 
@@ -117,6 +128,7 @@ struct zhw_worker_pool_t *zhw_worker_pool_init(void)
     pthread_cond_init(&p->tasks.cond, NULL);
     p->worker_num = worker_num;
     for(i = 0; i < worker_num; i++) {
+        p->workers[i].id = i;
         p->workers[i].pool = p;
         create_worker_thread(worker_thread_loop, &p->workers[i]);
     }
@@ -136,15 +148,33 @@ void zhw_destroy_worker_pool(struct zhw_worker_pool_t *p)
 //
 //创建任务
 int zhw_worker_pool_create_task(
-    struct zhw_worker_pool_t *pool,
-    zhw_worker_pool_task_pt func,
-    struct zhw_worker_pool_task_t **task
+    struct zhw_worker_pool_t *p,
+    zhw_worker_pool_task_pt call_back,
+    struct zhw_worker_pool_task_t **ret_task
     )
 {
     int ret = -1;
-    if(NULL != func) {
-        ret = func(NULL);
+    struct zhw_worker_pool_task_t *task = calloc(1, sizeof(struct zhw_worker_pool_task_t));
+    struct zhw_worker_pool_task_list_t *tasks = &p->tasks;
+    if(ret_task) { 
+        *ret_task = NULL;
     }
+    pthread_mutex_lock(&tasks->lock);
+    tasks->sid++;
+    task->id = tasks->sid;
+    task->call_back = call_back;
+    if(tasks->tail == NULL) {
+        tasks->head = tasks->tail = task;
+    } else {
+        tasks->tail->next = task;
+        tasks->tail = task;
+    }
+    pthread_cond_signal(&tasks->cond);
+    pthread_mutex_unlock(&tasks->lock);
+    if(ret_task) {
+        *ret_task = task;
+    }
+    ret = 0;
     return ret;
 }
 
