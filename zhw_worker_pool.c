@@ -5,11 +5,13 @@
 #include <unistd.h>
 
 #include "zhw_log.h"
+#include "zhw_cache.h"
 #include "zhw_worker_pool.h"
 
 struct zhw_worker_pool_task_t {
     size_t id;
-    long prio;
+    long ref;
+    struct zhw_worker_pool_t *pool;
     zhw_worker_pool_task_pt call_back;
     struct zhw_worker_pool_task_t *next;
 };
@@ -31,6 +33,7 @@ struct zhw_worker_pool_t {
     size_t id;
     long worker_num;
     long init_count;
+    struct zhw_cache_t *cache_task;
     struct zhw_worker_t *workers;
     struct zhw_worker_pool_task_list_t tasks;
     pthread_mutex_t init_lock;
@@ -72,6 +75,7 @@ static void *worker_walk_task(struct zhw_worker_t *worker)
         }
         pthread_mutex_unlock(&tasks->lock);
         task->call_back(NULL);
+        zhw_worker_pool_release_task(task);
     }
     return NULL;
 }
@@ -111,6 +115,7 @@ struct zhw_worker_pool_t *zhw_worker_pool_init(void)
         ZHW_LOG_ERR("CALLOC FAIL");
         return p;
     }
+    p->cache_task = zhw_cache_create(32, sizeof(struct zhw_worker_pool_task_t));
     const long cpu_num = sysconf(_SC_NPROCESSORS_ONLN);
     const long worker_num = cpu_num > 0 ? (cpu_num + 1) : 4;
     p->workers = calloc(worker_num, sizeof(struct zhw_worker_t));
@@ -154,7 +159,10 @@ int zhw_worker_pool_create_task(
     )
 {
     int ret = -1;
-    struct zhw_worker_pool_task_t *task = calloc(1, sizeof(struct zhw_worker_pool_task_t));
+    struct zhw_worker_pool_task_t *task = 
+        zhw_cache_alloc(p->cache_task);
+    task->ref = 1;
+    task->pool = p;
     struct zhw_worker_pool_task_list_t *tasks = &p->tasks;
     if(ret_task) { 
         *ret_task = NULL;
@@ -173,6 +181,7 @@ int zhw_worker_pool_create_task(
     pthread_mutex_unlock(&tasks->lock);
     if(ret_task) {
         *ret_task = task;
+        task->ref += 1;
     }
     ret = 0;
     return ret;
@@ -188,11 +197,34 @@ int zhw_worker_pool_watch_task(struct zhw_worker_pool_task_t *ww)
 int zhw_worker_pool_cancel_task(struct zhw_worker_pool_task_t *ww)
 {
     int ret = -1;
+    struct zhw_worker_pool_task_list_t *tasks = &ww->pool->tasks;
+    pthread_mutex_lock(&tasks->lock);
+    if(tasks->head) {
+        struct zhw_worker_pool_task_t *walk = tasks->head;
+        struct zhw_worker_pool_task_t *pre = walk;
+        while(ww->id < walk->id) {
+            pre = walk;
+            walk = walk->next;
+        }
+        if(ww->id == walk->id) {
+            pre->next = walk->next;
+            ret = 0;
+        } else {
+            ret = 1;
+        }
+    }
+    pthread_mutex_unlock(&tasks->lock);
     return ret;
 }
 
 int zhw_worker_pool_release_task(struct zhw_worker_pool_task_t *ww)
 {
-    int ret = -1;
+    int ret = 0;
+    if(ww) {
+        ww->ref -= 1;
+        if(ww->ref < 1) {
+            zhw_cache_free(ww->pool->cache_task, ww);
+        }
+    }
     return ret;
 }

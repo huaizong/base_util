@@ -9,7 +9,7 @@ struct zhw_worker_pool_t *zhw_worker_pool_init(void);
 
 //
 //销毁工作池
-void zhw_destroy_worker_pool(struct zhw_worker_pool_t *thpool);
+void zhw_destroy_worker_pool(struct zhw_worker_pool_t *p);
 
 //
 //创建任务
