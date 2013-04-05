@@ -15,7 +15,7 @@ int binary_search(int ary[], int low, int high, int flag, int val)
     int cmp_mod = 0;
     while(low <= high) {
         mid = low + (high-low)/2;
-        printf("%d %d %d %d\n", low, high, mid, ary[mid]);
+        printf("low:%d high:%d mid_ary[%d]:%d\n", low, high, mid, ary[mid]);
         if(ary[mid] < val) {
             low =  mid + 1;
             cmp_mod = -1;
