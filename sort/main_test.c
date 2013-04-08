@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "search.h"
+#include "half_vote.h"
 #include "sort.h"
 
 int main(int argc, char *argv[])
@@ -33,5 +34,6 @@ int main(int argc, char *argv[])
     int val = -1;
     scanf("%d", &val); 
     printf("result: %d\n", binary_search(a, 0, size-1, 0, val));
+    printf("vote: %d\n", half_vote(a, size));
     return 0;
 }

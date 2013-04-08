@@ -1,4 +1,9 @@
 #pragma once
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 struct zhw_worker_pool_t;
 struct zhw_worker_pool_task_t;
 typedef int (*zhw_worker_pool_task_pt)(void *);
@@ -31,3 +36,6 @@ int zhw_worker_pool_cancel_task(struct zhw_worker_pool_task_t *ww);
 //释放任务资源
 int zhw_worker_pool_release_task(struct zhw_worker_pool_task_t *ww);
 
+#ifdef __cplusplus
+}
+#endif

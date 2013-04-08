@@ -15,9 +15,6 @@ clean:
 install:
 	mkdir -p ${DESTDIR}/usr/local/libzhw/lib
 	mkdir -p ${DESTDIR}/usr/local/libzhw/include
-	mkdir -p ${DESTDIR}/usr/local/libzhw/data/split_dict
-	install -m 644 data/split_dict/english.dict ${DESTDIR}/usr/local/libzhw/data/split_dict
-	install -m 644 data/split_dict/pinyin.dict ${DESTDIR}/usr/local/libzhw/data/split_dict
 	install -m 644 zhw_log.h ${DESTDIR}/usr/local/libzhw/include
 	install -m 644 zhw_cache.h ${DESTDIR}/usr/local/libzhw/include
 	install -m 644 zhw_word_split.h ${DESTDIR}/usr/local/libzhw/include
