@@ -1,9 +1,12 @@
-all: cpp_test test revert_link
-revert_link: revert_link.c
-    gcc -std=gnu99 -o revert_link revert_link.c
-test: test.c
-	gcc -std=gnu99  -o test test.c
-cpp_test: cpp_test.cc
-	g++ -o cpp_test cpp_test.cc
+CFLAGS = -g -Wformat -Wall -std=gnu99
+LDFLAGS = 
+all: select_test oob_srv_test oob_cli_test
+
+select_test: select_test.c
+	gcc -o $@ $^ $(LDFLAGS)
+oob_srv_test: oob_srv_test.c
+	gcc -o $@ $^ $(LDFLAGS)
+oob_cli_test: oob_cli_test.c
+	gcc -o $@ $^ $(LDFLAGS)
 clean:
-	rm cpp_test test revert_link
+	rm select_test oob_srv_test oob_cli_test
