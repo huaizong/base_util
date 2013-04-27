@@ -1,5 +1,7 @@
 #include <fstream>
+#include <iterator>
 #include <unistd.h>
+#include <iostream>
 #include <ctype.h>
 #include <stdio.h>
 #include "read_ini_file.h"
@@ -26,18 +28,18 @@ static void str_trim(string &str)
     long start = 0;
     long end = str.length() - 1;
     while(start < end) {
-        if(isblank(str[start]) == 0) {
+        if(isspace(str[start]) == 0) {
             break;
         }
         start++;
     }
     while(start < end) {
-        if(isblank(str[end]) == 0) {
+        if(isspace(str[end]) == 0) {
             break;
         }
         end--;
     }
-    str  = str.substr(start, end-start);
+    str  = str.substr(start, end-start+1);
     return;
 }
     
@@ -46,7 +48,9 @@ static bool str_startwiths(const string& str, const char *psz)
     if(psz == NULL) {
         return false;
     }
-    if(strncmp(psz, str.c_str(), strlen(psz) == 0)) {
+    //fprintf(stdout, "psz: %s, len: %ld, str: %s res: %ld\n", psz, strlen(psz), str.c_str(), strncmp(psz, str.c_str(), strlen(psz)));
+    if(strncmp(psz, str.c_str(), strlen(psz)) == 0) {
+        //cout << psz << "," << str << " match\n";
         return true;
     }
     return false;
@@ -54,29 +58,62 @@ static bool str_startwiths(const string& str, const char *psz)
 
 bool IniFileOp::load(void)
 {
-    FILE *fp = fopen(m_path.c_str(), "r");
-    char *line = NULL;
-    size_t linecap = 0;
-    ssize_t linelen;
-    while ((linelen = getline(&line, &linecap, fp)) > 0) {
-        string tmp =  line;
-        str_trim(tmp);
-        //fwrite(line, linelen, 1, stdout);
-        fwrite(tmp.c_str(), tmp.length(), 1, stdout);
-        tmp = "\n";
-        fwrite(tmp.c_str(), tmp.length(), 1, stdout);
+    ifstream fin(m_path.c_str());
+    string line;
+    while (getline(fin, line)) {
+        str_trim(line);
+        if(line.length() == 0) {
+            continue;
+        } else if(str_startwiths(line, ";")) {
+            continue;
+        } else if(str_startwiths(line, "[") == true 
+            && line[line.length()-1] == ']')
+            {
+                if(m_first_title == false) {
+                    m_first_title = true;
+                }
+                m_cur_title = line.substr(1, line.length()-2);
+        } else {
+            if(m_first_title == false) {
+                break;
+            }
+            map<string, string>& cur = m_content[m_cur_title];
+            ssize_t pos = line.find("=");
+            if(pos != -1) {
+                string key = line.substr(0, pos);
+                string val = line.substr(pos+1, line.length() - pos - 1);
+                str_trim(key);
+                str_trim(val);
+                cur[key] = val;
+            }
+        }
     }
-    if(line) {
-        free(line);
-        line = NULL;
-    }
-    fclose(fp);
-    return false;
+    m_init_ok = true;
+    return m_init_ok;
 } 
 
+bool IniFileOp::get_val(const std::string &title, const std::string &sub_title, std::string &val)
+{
+    if(m_init_ok == false) {
+        return false;
+    }   
+    map<string, map<string, string> >::const_iterator it_title = m_content.find(title);
+    if(it_title != m_content.end()) {
+        map<string, string>::iterator it_sub = m_content[title].find(sub_title);
+        if(it_sub != m_content[title].end()) {
+            val = it_sub->second;
+            return true;
+        }
+    }
+    return false;
+    
+}
 int main(int argc, char **argv)
 {
     IniFileOp ini_file(argv[1]); 
     ini_file.load(); 
+    string val;
+    ini_file.get_val("name", "name_me", val);
+    cout << val << endl;
     return 0;
 }
