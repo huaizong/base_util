@@ -6,6 +6,10 @@ const char *getmemory(void);
 
 int main()
 {
+    printf("%s\n", getmemory());
+    const char *str = getmemory();
+    printf("%s\n", str);
+    return 0;
     printf("%d\n", 2*3 < 9& 8);
     printf("%d\n", 2*3 < (9& 8));
     printf("%d\n", (2*3 < 9) & 8);
