@@ -22,14 +22,14 @@ int zhw_tcp_listen(const char *ip, int port)
     return ret;
 }
 
-int zhw_tcp_select(int sfd)
+int zhw_tcp_use_select(int sfd)
 {
     fd_set rset;
     int maxfdp1;
     FD_ZERO(&rset);
     FD_SET(sfd, &rset);
     while(1) {
-        maxfdp1 = 
+//        maxfdp1 = 
     }
     return 0;
 }
