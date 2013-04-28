@@ -2,7 +2,6 @@
 #include <string.h>
 int test000(void);
 int test001(void);
-const char *getmemory(void);
 
 int main()
 {
@@ -14,13 +13,6 @@ int main()
     printf("%d\n", 2*3 < (9& 8));
     printf("%d\n", (2*3 < 9) & 8);
     return 0;
-}
-
-const char *getmemory(void)
-{
-    char info[]= "hello world\n";
-    return info;
-
 }
 
 int test000(void)
