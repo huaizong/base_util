@@ -1,9 +1,9 @@
-CFLAGS = -g -Wformat -Wall
-LDFLAGS = -L/usr/local/libzhw/lib -lzhw -lpthread -lmemcached
-BINS = zhwserver
+CFLAGS = -g -Wformat -Wall -I/usr/local/include/libzhw
+LDFLAGS = -L/usr/local/lib/libzhw -lzhw -lpthread -lmemcached
+BINS = zhw_server
 LIBS = 
 all: $(BINS)
-zhwserver: zhwserver.o
+zhw_server: zhw_server.o
 	gcc -o $@ $^ $(LDFLAGS)
 .PHONY: clean install all
 clean:

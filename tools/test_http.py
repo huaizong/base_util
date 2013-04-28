@@ -11,7 +11,7 @@ import sys
 def try_max_conn():
     tn_lst = []
     for i in range(512000):
-        tn = telnetlib.Telnet('ml', 80)
+        tn = telnetlib.Telnet('ali', 8080)
         tn_lst.append(tn)
         if len(tn_lst) % 1000 == 0:
             print len(tn_lst)
@@ -19,7 +19,7 @@ def try_max_conn():
     for tn in tn_lst:
         tn.close()
 sample = []
-for i in range(10):
+for i in range(100):
     p = Process(target = try_max_conn, args=())
     p.start()
     sample.append(p)
