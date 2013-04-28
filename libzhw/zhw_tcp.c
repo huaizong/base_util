@@ -14,16 +14,16 @@
 
 
 static int zhw_tcp_socket(const char *ip, int port);
-static int zhw_tcp_use_epoll(int sfd);
+static int zhw_tcp_use_epoll(int sfd, process_client_req callback, void *arg);
 
-int zhw_tcp_listen(const char *ip, int port)
+int zhw_tcp_listen(const char *ip, int port, process_client_req callback, void *arg)
 {
     int ret = 0;
     int sfd =  zhw_tcp_socket(ip, port);
     if(sfd < 0) {
         return -1;
     }
-    ret = zhw_tcp_use_epoll(sfd);
+    ret = zhw_tcp_use_epoll(sfd, callback, arg);
     if(ret < 0) {
         close(sfd);
         return ret;
@@ -31,7 +31,7 @@ int zhw_tcp_listen(const char *ip, int port)
     return ret;
 }
 
-int zhw_tcp_use_epoll(int sfd)
+int zhw_tcp_use_epoll(int sfd, process_client_req callback, void *arg)
 {
     int efd = epoll_create(10);
     if(efd < 0) {
@@ -68,6 +68,7 @@ int zhw_tcp_use_epoll(int sfd)
             ZHW_LOG_DEBUG("%s:%d connected", 
                     inet_ntoa(client_addr.sin_addr),
                     ntohs(client_addr.sin_port));
+            callback(conn_sfd, arg);
         }
     }
     return 0;

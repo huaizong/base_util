@@ -5,8 +5,8 @@ extern "C"
 {
 #endif
 
-typedef int process_client_req(void *arg, int sfd);
-int zhw_tcp_listen(const char *ip, int port);
+typedef int process_client_req(int fd, void *arg);
+int zhw_tcp_listen(const char *ip, int port, process_client_req callback, void *arg);
 
 #ifdef __cplusplus
 }
