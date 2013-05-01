@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "zhw_tcp.h"
+static int process_one_conn(int sfd, void *arg);
 int main(int argc, char *argv[])
 {
     if(argc < 3) {
@@ -8,7 +9,7 @@ int main(int argc, char *argv[])
     }
     int port = atoi(argv[2]);
     const char *ip = argv[1];
-    int ret = zhw_tcp_listen(ip, port);
+    int ret = zhw_tcp_listen(ip, port, process_one_conn, NULL);
     if(ret == 0) {
         fprintf(stdout, "succ listen on ip: %s port: %d\n",  ip, port);
     } else {
@@ -16,3 +17,9 @@ int main(int argc, char *argv[])
     }
     return 0;
 } 
+
+int process_one_conn(int sfd, void *arg)
+{
+    fprintf(stdout, "conn_sfd: %d arg: %p\n", sfd, arg);
+    return 0;
+}

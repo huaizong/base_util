@@ -11,14 +11,16 @@ sample_zhw_worker_pool: sample_zhw_worker_pool.o
 	gcc -o $@ $^ $(LDFLAGS) libzhw.a
 sample_zhw_tcp: sample_zhw_tcp.o
 	gcc -o $@ $^ $(LDFLAGS) libzhw.a
-.PHONY: clean install all
+.PHONY: clean install uninstall all
 clean:
 	rm *.o $(BINS) $(LIBS)
 install:
-	mkdir -p ${DESTDIR}/usr/local/libzhw/lib
-	mkdir -p ${DESTDIR}/usr/local/libzhw/include
-	install -m 644 zhw_log.h ${DESTDIR}/usr/local/libzhw/include
-	install -m 644 zhw_cache.h ${DESTDIR}/usr/local/libzhw/include
-	install -m 644 zhw_word_split.h ${DESTDIR}/usr/local/libzhw/include
-	install -m 644 zhw_worker_pool.h ${DESTDIR}/usr/local/libzhw/include
-	install -m 755 libzhw.a ${DESTDIR}/usr/local/libzhw/lib
+	mkdir -p ${DESTDIR}/usr/local/lib/libzhw
+	mkdir -p ${DESTDIR}/usr/local/include/libzhw
+	install -m 644 zhw_log.h ${DESTDIR}/usr/local/include/libzhw
+	install -m 644 zhw_cache.h ${DESTDIR}/usr/local/include/libzhw
+	install -m 644 zhw_word_split.h ${DESTDIR}/usr/local/include/libzhw
+	install -m 644 zhw_tcp.h ${DESTDIR}/usr/local/include/libzhw
+	install -m 755 libzhw.a ${DESTDIR}/usr/local/lib/libzhw
+uninstall:
+	rm -rf  ${DESTDIR}/usr/local/libzhw
