@@ -11,6 +11,7 @@ def send_mail(to_list, sub, content):
     try:
         s = smtplib.SMTP()
         s.connect('ali')
+        s.set_debuglevel(1)
         s.sendmail(me, to_list, msg.as_string())
         s.quit()
         return True
