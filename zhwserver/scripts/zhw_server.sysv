@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# ucd-snmp init file for  zhw_server
+#
+# chkconfig: - 50 50
+# description: zhw_server 
+#
+# processname: /usr/local/zhw/zhw_server
+# config: /usr/local/etc/zhw/zhw_server.ini
+# pidfile: /var/run/zhw/zhw_server.pid
+# 
+# source function library
+. /etc/init.d/functions
+
+OPTIONS="0 25"
+
+RETVAL=0
+prog="zhw_server"
+pidfile=${PIDFILE-/var/run/zhw/zhw_server.pid}
+lockfile=${LOCKFILE-/var/lock/subsys/zhw_server}
+
+start() {
+	echo -n $"Starting $prog: "
+    daemon --pidfile ${pidfile} "ulimit -n 65535 && /usr/local/zhw/zhw_server $OPTIONS &"
+	RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch ${lockfile}
+}
+
+stop() {
+	echo -n $"Stopping $prog: "
+	killproc /usr/local/zhw/zhw_server
+    RETVAL=$?
+    echo
+    if [ $RETVAL -eq 0 ] ; then
+        rm -f ${lockfile} ${pidfile}
+    fi
+}
+
+
+restart(){
+	stop
+	start
+}
+
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart)
+	restart
+        ;;
+  *)
+	echo $"Usage: $0 {start|stop|restart}"
+	RETVAL=1
+esac
+
+exit $RETVAL

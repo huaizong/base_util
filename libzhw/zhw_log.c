@@ -15,7 +15,7 @@ void zhw_log_init(const char *ident)
 
 void zhw_write_log(int priority, const char *message, ...)
 {
-    #define MAX_MSG_SIZE 1024
+    #define MAX_MSG_SIZE 10240
     char msg[MAX_MSG_SIZE + 1] = {0};
     va_list ap;
     va_start(ap, message);
