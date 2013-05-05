@@ -89,6 +89,17 @@ int process_one_conn(int sfd, void *arg)
                 } else if(strncasecmp("rcpt to:", walk, strlen("rcpt to:")) == 0) {
                     const char *tmp_msg = "250 2.1.5 Ok\r\n";
                     resp_msg(sfd, tmp_msg, strlen(tmp_msg));
+                } else if(strncasecmp("ehlo ", walk, strlen("ehlo ")) == 0) {
+                    const char *tmp_msg = 
+                        "250-mx.jiuxtea.com\r\n"
+                        "250-PIPELINING\r\n"
+                        "250-SIZE 10240000\r\n"
+                        "250-VRFY\r\n"
+                        "250-ETRN\r\n"
+                        "250-ENHANCEDSTATUSCODES\r\n"
+                        "250-8BITMIME\r\n"
+                        "250 DSN\r\n";
+                    resp_msg(sfd, tmp_msg, strlen(tmp_msg));
                 } else {
                     resp_msg(sfd, default_msg, strlen(default_msg));
                 }
