@@ -50,7 +50,7 @@ int process_one_conn(int sfd, void *arg)
 {
     ZHW_LOG_DEBUG("conn_sfd: %d arg: %p\n", sfd, arg);
     char buf[MAX_MSG_LEN+1];
-    int n, offset;
+    ssize_t n, offset;
     offset = 0;
     const char *welcome_msg = "220 mx.jiuxtea.com ESMTP\r\n";
     resp_msg(sfd, welcome_msg, strlen(welcome_msg));
@@ -71,11 +71,9 @@ int process_one_conn(int sfd, void *arg)
                         const char *finish_msg = "250 2.0.0 Ok: queued as D5B95180257\r\n";
                         resp_msg(sfd, finish_msg, strlen(finish_msg));
                         data_start = 0;
-                        offset = 0;
                         walk = end + 2;
                         continue;
                     } else {
-                        offset = 0;
                         walk = end + 2;
                         continue;
                     }
@@ -83,7 +81,6 @@ int process_one_conn(int sfd, void *arg)
                     const char *notice_msg = "354 End data with <CR><LF>.<CR><LF>\r\n";
                     resp_msg(sfd, notice_msg, strlen(notice_msg));
                     data_start = 1; 
-                    offset = 0;
                     walk = end + 2;
                     continue;
                 } else if(strncasecmp("rcpt to:", walk, strlen("rcpt to:")) == 0) {
@@ -110,7 +107,9 @@ int process_one_conn(int sfd, void *arg)
                 walk = end + 2;
             }
             if(*walk) {
+		ZHW_LOG_DEBUG("offset: %ld, walk: %p, buf: %p, walk-buf: %ld", offset, walk - buf);
                 offset = buf + offset - walk;
+		ZHW_LOG_DEBUG("offset: %ld, walk: %p, buf: %p, walk-buf: %ld", offset, walk - buf);
                 memmove(buf, walk, offset);
                 buf[offset] = '\0';
             } else {
@@ -119,6 +118,7 @@ int process_one_conn(int sfd, void *arg)
             if(offset < MAX_MSG_LEN) {
                 continue;
             } else {
+		ZHW_LOG_ERR("offset >=MAX_MSG_LEN %ld %ld", offset, MAX_MSG_LEN);
                 close(sfd);
                 return -1;
             }
