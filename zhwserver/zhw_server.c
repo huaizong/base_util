@@ -52,7 +52,7 @@ int process_one_conn(int sfd, void *arg)
     char buf[MAX_MSG_LEN+1];
     int n, offset;
     offset = 0;
-    const char *welcome_msg = "mx.jiuxtea.com welcome you\r\n";
+    const char *welcome_msg = "220 mx.jiuxtea.com ESMTP\r\n";
     resp_msg(sfd, welcome_msg, strlen(welcome_msg));
     const char *default_msg = "250 2.1.0 Ok\r\n";
     short data_start = 0;
