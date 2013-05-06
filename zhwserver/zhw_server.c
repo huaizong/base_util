@@ -56,11 +56,26 @@ int process_one_conn(int sfd, void *arg)
     resp_msg(sfd, welcome_msg, strlen(welcome_msg));
     const char *default_msg = "250 2.1.0 Ok\r\n";
     short data_start = 0;
+    long sleep_times = 0;
+    const long usleep_len = 10000;
     while(1) {
         n = read(sfd, buf+offset, MAX_MSG_LEN - offset);
         ZHW_LOG_DEBUG("n :%d offset: %d buf: %s", n, offset, buf);
         buf[offset+n] = '\0';
-        if(n > 0){
+        if(n <= 0){
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                usleep(usleep_len);
+                sleep_times += 1;
+                if(sleep_times  > 5*100) {
+                    close(sfd);
+                    return 0;
+                }
+                continue;
+            }
+            close(sfd);
+            return n;
+        } else {
+            sleep_times = 0;
             offset += n;
             const char *walk = buf;
             const char *end = NULL;
@@ -120,13 +135,6 @@ int process_one_conn(int sfd, void *arg)
                 close(sfd);
                 return -1;
             }
-        } else {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                ZHW_LOG_DEBUG("errno :%s", strerror(errno));
-                usleep(1000);
-                continue;
-            }
-            return -1;
         }
     }
         

@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <fcntl.h>
 
 #include <sys/epoll.h>
 
@@ -67,6 +68,13 @@ int zhw_tcp_use_epoll(int sfd, process_client_req callback, void *arg)
                 ZHW_LOG_ERR("accept fail: %s", strerror(errno));
                 continue;
             }
+            int nonblock_flags;
+            if ((nonblock_flags = fcntl(conn_sfd, F_GETFL, 0)) < 0 ||
+                fcntl(conn_sfd, F_SETFL, nonblock_flags | O_NONBLOCK) < 0) {
+                ZHW_LOG_ERR("setnonblock fail: %s", strerror(errno));
+                close(conn_sfd);
+                continue;
+            }
             ZHW_LOG_DEBUG("%s:%d connected", 
                     inet_ntoa(client_addr.sin_addr),
                     ntohs(client_addr.sin_port));
@@ -94,6 +102,13 @@ int zhw_tcp_socket(const char *ip, int port)
     int ret = setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (void *)&flags, sizeof(flags));
     if (ret != 0) {
         perror("setsockopt");
+        return -1;
+    }
+    int nonblock_flags;
+    if ((nonblock_flags = fcntl(sfd, F_GETFL, 0)) < 0 ||
+        fcntl(sfd, F_SETFL, nonblock_flags | O_NONBLOCK) < 0) {
+        ZHW_LOG_ERR("setnonblock fail: %s", strerror(errno));
+        close(sfd);
         return -1;
     }
     struct sockaddr_in saddr;
