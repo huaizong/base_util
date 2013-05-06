@@ -11,6 +11,7 @@
 struct zhw_worker_pool_task_t {
     size_t id;
     long ref;
+    void *call_back_arg;
     struct zhw_worker_pool_t *pool;
     zhw_worker_pool_task_pt call_back;
     struct zhw_worker_pool_task_t *next;
@@ -74,7 +75,7 @@ static void *worker_walk_task(struct zhw_worker_t *worker)
             tasks->tail = NULL;
         }
         pthread_mutex_unlock(&tasks->lock);
-        task->call_back(NULL);
+        task->call_back(task->call_back_arg);
         zhw_worker_pool_release_task(task);
     }
     return NULL;
@@ -155,6 +156,7 @@ void zhw_destroy_worker_pool(struct zhw_worker_pool_t *p)
 int zhw_worker_pool_create_task(
     struct zhw_worker_pool_t *p,
     zhw_worker_pool_task_pt call_back,
+    void *arg,
     struct zhw_worker_pool_task_t **ret_task
     )
 {
@@ -171,6 +173,7 @@ int zhw_worker_pool_create_task(
     tasks->sid++;
     task->id = tasks->sid;
     task->call_back = call_back;
+    task->call_back_arg = arg;
     if(tasks->tail == NULL) {
         tasks->head = tasks->tail = task;
     } else {
