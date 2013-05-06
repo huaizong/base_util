@@ -11,7 +11,8 @@
 struct zhw_worker_pool_task_t {
     size_t id;
     long ref;
-    void *call_back_arg;
+    int arg_int;
+    void *arg_ptr;
     struct zhw_worker_pool_t *pool;
     zhw_worker_pool_task_pt call_back;
     struct zhw_worker_pool_task_t *next;
@@ -75,7 +76,7 @@ static void *worker_walk_task(struct zhw_worker_t *worker)
             tasks->tail = NULL;
         }
         pthread_mutex_unlock(&tasks->lock);
-        task->call_back(task->call_back_arg);
+        task->call_back(task->arg_int, task->arg_ptr);
         zhw_worker_pool_release_task(task);
     }
     return NULL;
@@ -118,7 +119,7 @@ struct zhw_worker_pool_t *zhw_worker_pool_init(void)
     }
     p->cache_task = zhw_cache_create(32, sizeof(struct zhw_worker_pool_task_t));
     const long cpu_num = sysconf(_SC_NPROCESSORS_ONLN);
-    const long worker_num = cpu_num > 0 ? (cpu_num + 1) : 4;
+    const long worker_num = cpu_num > 32 ? (cpu_num + 1) : 32;
     p->workers = calloc(worker_num, sizeof(struct zhw_worker_t));
     if(NULL == p->workers) {
         ZHW_LOG_ERR("CALLOC FAIL");
@@ -156,7 +157,8 @@ void zhw_destroy_worker_pool(struct zhw_worker_pool_t *p)
 int zhw_worker_pool_create_task(
     struct zhw_worker_pool_t *p,
     zhw_worker_pool_task_pt call_back,
-    void *arg,
+    int arg_int,
+    void *arg_ptr,
     struct zhw_worker_pool_task_t **ret_task
     )
 {
@@ -173,7 +175,8 @@ int zhw_worker_pool_create_task(
     tasks->sid++;
     task->id = tasks->sid;
     task->call_back = call_back;
-    task->call_back_arg = arg;
+    task->arg_int = arg_int;
+    task->arg_ptr = arg_ptr;
     if(tasks->tail == NULL) {
         tasks->head = tasks->tail = task;
     } else {

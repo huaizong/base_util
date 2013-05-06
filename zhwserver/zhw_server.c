@@ -5,11 +5,11 @@
 #include "zhw_tcp.h"
 #include "zhw_log.h"
 #define MAX_MSG_LEN 10240
-static int process_one_conn(int sfd, void *arg);
+static int process_one_conn(int fd, void *arg);
 int main(int argc, char *argv[])
 {
     if(argc < 3) {
-        printf("./sample_zhw_tcp ip port\n");
+        printf("./zhw_server ip port\n");
         return -1;
     }
     int port = atoi(argv[2]);
@@ -107,9 +107,7 @@ int process_one_conn(int sfd, void *arg)
                 walk = end + 2;
             }
             if(*walk) {
-		ZHW_LOG_DEBUG("offset: %ld, walk: %p, buf: %p, walk-buf: %ld", offset, walk - buf);
                 offset = buf + offset - walk;
-		ZHW_LOG_DEBUG("offset: %ld, walk: %p, buf: %p, walk-buf: %ld", offset, walk - buf);
                 memmove(buf, walk, offset);
                 buf[offset] = '\0';
             } else {
@@ -118,7 +116,7 @@ int process_one_conn(int sfd, void *arg)
             if(offset < MAX_MSG_LEN) {
                 continue;
             } else {
-		ZHW_LOG_ERR("offset >=MAX_MSG_LEN %ld %ld", offset, MAX_MSG_LEN);
+                ZHW_LOG_ERR("offset >=MAX_MSG_LEN %ld %ld", offset, MAX_MSG_LEN);
                 close(sfd);
                 return -1;
             }

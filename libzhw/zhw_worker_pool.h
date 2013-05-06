@@ -6,7 +6,7 @@ extern "C"
 
 struct zhw_worker_pool_t;
 struct zhw_worker_pool_task_t;
-typedef int (*zhw_worker_pool_task_pt)(void *);
+typedef int (*zhw_worker_pool_task_pt)(int arg_int, void *arg_b);
 
 //
 //初始化工作池
@@ -22,7 +22,8 @@ int zhw_worker_pool_create_task(
     struct zhw_worker_pool_t *pool,
     //任务内容
     zhw_worker_pool_task_pt func,
-    void *arg,
+    int arg_int,
+    void *arg_b,
     //task 为NULL时创建任务，调用程序不检查任务进度
     //task 非NULL时创建任务，调用程序可通过返回值检查任务进度
     struct zhw_worker_pool_task_t **task

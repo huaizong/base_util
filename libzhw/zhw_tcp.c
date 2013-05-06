@@ -10,6 +10,7 @@
 #include <errno.h>
 
 #include "zhw_tcp.h"
+#include "zhw_worker_pool.h"
 #include "zhw_log.h"
 
 
@@ -48,6 +49,7 @@ int zhw_tcp_use_epoll(int sfd, process_client_req callback, void *arg)
     struct epoll_event events[1024];
     int nfds, n;
     int conn_sfd, listen_sfd;
+    struct zhw_worker_pool_t *worker_pool = zhw_worker_pool_init();
     while(1) {
         nfds = epoll_wait(efd, events,
                 sizeof(events)/sizeof(struct epoll_event), -1);
@@ -68,9 +70,15 @@ int zhw_tcp_use_epoll(int sfd, process_client_req callback, void *arg)
             ZHW_LOG_DEBUG("%s:%d connected", 
                     inet_ntoa(client_addr.sin_addr),
                     ntohs(client_addr.sin_port));
-            callback(conn_sfd, arg);
+            zhw_worker_pool_create_task(
+                worker_pool,
+                callback,
+                conn_sfd,
+                arg,
+                NULL);
         }
     }
+    zhw_destroy_worker_pool(worker_pool);
     return 0;
 }
 
