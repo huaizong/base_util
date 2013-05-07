@@ -131,9 +131,11 @@ int process_one_conn(int sfd, void *arg)
             if(offset < MAX_MSG_LEN) {
                 continue;
             } else {
-                ZHW_LOG_ERR("offset >=MAX_MSG_LEN %ld %ld", offset, MAX_MSG_LEN);
-                close(sfd);
-                return -1;
+                int walk_len = offset-1-10;
+                ZHW_LOG_ERR("offset >=MAX_MSG_LEN %ld %ld %s", offset, MAX_MSG_LEN, buf+walk_len);
+                memmove(buf, buf+walk_len, 10);
+                offset = 10;
+                continue;
             }
         }
     }
