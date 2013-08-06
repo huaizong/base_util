@@ -1,5 +1,6 @@
 import telnetlib
 from datetime import *
+import signal
 import time
 import hashlib
 import sys
@@ -19,6 +20,7 @@ def try_max_conn():
     for tn in tn_lst:
         tn.close()
 sample = []
+signal.signal(signal.SIGCHLD,signal.SIG_IGN)
 for i in range(100):
     p = Process(target = try_max_conn, args=())
     p.start()
