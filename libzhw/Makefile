@@ -3,7 +3,11 @@ LDFLAGS = -lpthread -lmemcached
 BINS = sample_zhw_worker_pool sample_zhw_word_split sample_zhw_tcp
 LIBS = libzhw.a
 all: $(LIBS) $(BINS)
-libzhw.a: zhw_worker_pool.o zhw_log.o zhw_cache.o zhw_word_split.o zhw_memcache.o zhw_top_n.o zhw_tcp.o
+libzhw.a: zhw_worker_pool.o zhw_log.o \
+		zhw_cache.o zhw_word_split.o \
+		zhw_memcache.o zhw_top_n.o \
+		zhw_tcp.o zhw_ini.o \
+		zhw_str.o
 	ar cru $@ $^
 sample_zhw_word_split: sample_zhw_word_split.o
 	gcc -o $@ $^ $(LDFLAGS) libzhw.a
