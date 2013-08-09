@@ -1,0 +1,6 @@
+1.1 计算有多少个 A  B C 类网络号
+A： 2^7  (0+netmask(7)+24)  
+        http://en.wikipedia.org/wiki/List_of_assigned_/8_IPv4_address_blocks
+B:  2^14 (10+netmask(14)+16)
+C:  2^21 (110+netmask(21)+8)
+
