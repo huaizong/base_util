@@ -6,5 +6,11 @@ extern "C"
 {
 #endif
 
+typedef _zhw_str_t {
+    char *val; 
+    uint32_t val_len;
+    uint32_t max_len;
+}zhw_str_t;
+
 
 

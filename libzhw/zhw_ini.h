@@ -37,19 +37,20 @@ typedef struct _zhw_ini_str_t {
     short must;
 }zhw_ini_str_t;
 
+typedef struct _zhw_ini_dict_node_t {
+    char *key;
+    char *val;
+    uint32_t hash;
+    uint32_t scope;
+}zhw_ini_dict_node_t;
+
 typedef struct _zhw_ini_dict_t {
     unsigned n;
-    char **key;
-    char **val;
-    char *scope;
+    zhw_ini_dict_node_t *nodes;
 }zhw_ini_dict_t;
 
-zhw_ini_dict_t *zhw_ini_open_(const char *file_path);
 
-const char *zhw_ini_key_map_val(
-    zhw_ini_dict_t *zhw_dict, 
-    const char *scope,
-    const char *name);
+zhw_ini_dict_t *zhw_ini_open(const char *file_path);
 
 void zhw_ini_close(zhw_ini_dict_t *dict);
 
