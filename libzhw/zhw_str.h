@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-typedef _zhw_str_t {
+typedef struct  _zhw_str_t {
     char *val; 
     uint32_t val_len;
     uint32_t max_len;
