@@ -13,6 +13,7 @@ static void zhw_ini_parse_line(
     zhw_ini_dict_t *zhw_dict,
     char **scope,
     ssize_t *scope_len,
+    uint32_t *scope_hash,
     char *line,
     ssize_t line_len);
 
@@ -47,9 +48,10 @@ zhw_ini_dict_t *zhw_ini_open(const char *file_path)
     size_t line_cap = 0;
     ssize_t line_len = 0;
     ssize_t scope_len = 0;
+    uint32_t scope_hash = 0;
     zhw_ini_dict_t *d = calloc(1, sizeof(zhw_ini_dict_t));
     while ((line_len = getline(&line, &line_cap, fp)) > 0) {
-        zhw_ini_parse_line(d, &scope, &scope_len, line, line_len);
+        zhw_ini_parse_line(d, &scope, &scope_len, &scope_hash, line, line_len);
     }
     return d;
 }
@@ -233,6 +235,7 @@ static void zhw_ini_parse_line(
     zhw_ini_dict_t *d,
     char **scope,
     ssize_t *scope_len,
+    uint32_t *scope_hash,
     char *line,
     ssize_t line_len)
 {
@@ -254,6 +257,7 @@ static void zhw_ini_parse_line(
         char *tmp = *scope;
         memcpy(tmp, line+1, len-1);
         tmp[len-2] = '\0';
+        *scope_hash = zhw_dict_hash(*scope, (*scope_len) - 1);
         zhw_ini_parse_log("scope: %s", *scope);
         return;
     }
@@ -289,7 +293,7 @@ static void zhw_ini_parse_line(
     memcpy(node->val, val, val_len);
 
     node->hash = zhw_dict_hash(key, key_len);
-    node->scope = zhw_dict_hash(*scope, (*scope_len) - 1);
+    node->scope = *scope_hash;
     zhw_ini_parse_log("key: [%s] %ld %u, val: [%s]", node->key, key_len, node->hash,  node->val);
     return;
 }
