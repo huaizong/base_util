@@ -1,16 +1,16 @@
-
-
-def decode_b(str):
-    if not str:
-        return str
-    if str[0] == 'i':
-        end_pos = str.find('e')
+"""decode bt torrent B encode data."""
+def decode_b(data):
+    """decode bt torrent B encode data."""
+    if not data:
+        return data
+    if data[0] == 'i':
+        end_pos = data.find('e')
         if end_pos != -1:
             try:
-                val = int(str[1:-1])
-            except:
+                val = int(data[1:-1])
+            except TypeError:
                 val = None
             return val
     return None
 
-print decode_b('i498e')
+#print decode_b('i498e')
