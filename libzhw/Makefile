@@ -1,4 +1,5 @@
-CFLAGS = -g -Wformat -Wall
+#CFLAGS = -g -Wformat -Wall
+CFLAGS = -g -Wformat -Wall -DZHW_DEBUG -DZHW_USE_EPOLL
 LDFLAGS = -lpthread -lmemcached
 BINS = sample_zhw_ini sample_zhw_worker_pool sample_zhw_word_split sample_zhw_tcp
 LIBS = libzhw.a
@@ -7,8 +8,16 @@ libzhw.a: zhw_worker_pool.o zhw_log.o \
 		zhw_cache.o zhw_word_split.o \
 		zhw_memcache.o zhw_top_n.o \
 		zhw_tcp.o zhw_ini.o \
-		zhw_str.o
+		zhw_sys.o \
+		zhw_stack.o \
+		zhw_dict.o \
+		zhw_algorithm.o \
+		zhw_top_n.o \
+		zhw_str.o \
+		zhw_email.o \
+		zhw_p2p.o
 	ar cru $@ $^
+
 sample_zhw_ini: sample_zhw_ini.o
 	gcc -o $@ $^ $(LDFLAGS) libzhw.a
 sample_zhw_word_split: sample_zhw_word_split.o

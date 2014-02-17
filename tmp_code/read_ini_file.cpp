@@ -1,9 +1,10 @@
 #include <fstream>
 #include <iterator>
-#include <unistd.h>
 #include <iostream>
+#include <unistd.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <string.h>
 #include "read_ini_file.h"
 
 using namespace std;
@@ -97,7 +98,8 @@ bool IniFileOp::get_val(const std::string &title, const std::string &sub_title, 
     if(m_init_ok == false) {
         return false;
     }   
-    map<string, map<string, string> >::const_iterator it_title = m_content.find(title);
+    //map<string, map<string, string> >::const_iterator it_title = m_content.find(title);
+    auto it_title = m_content.find(title);
     if(it_title != m_content.end()) {
         map<string, string>::iterator it_sub = m_content[title].find(sub_title);
         if(it_sub != m_content[title].end()) {
