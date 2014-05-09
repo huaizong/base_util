@@ -3,6 +3,11 @@ CFLAGS = -g -Wformat -Wall -DZHW_DEBUG -DZHW_USE_EPOLL
 LDFLAGS = -lpthread -lmemcached
 BINS = sample_zhw_ini sample_zhw_worker_pool sample_zhw_word_split sample_zhw_tcp
 LIBS = libzhw.a
+DESTDIR= /usr/local
+LIB_ZHW_INST_ROOT=${DESTDIR}/libzhw
+LIB_ZHW_LIB_INST_DIR = ${LIB_ZHW_INST_ROOT}/lib
+LIB_ZHW_HEADER_INST_DIR = ${LIB_ZHW_INST_ROOT}/include
+
 all: $(LIBS) $(BINS)
 libzhw.a: zhw_worker_pool.o zhw_log.o \
 		zhw_cache.o zhw_word_split.o \
@@ -30,12 +35,13 @@ sample_zhw_tcp: sample_zhw_tcp.o
 clean:
 	rm *.o $(BINS) $(LIBS)
 install:
-	mkdir -p ${DESTDIR}/usr/local/lib/libzhw
-	mkdir -p ${DESTDIR}/usr/local/include/libzhw
-	install -m 644 zhw_log.h ${DESTDIR}/usr/local/include/libzhw
-	install -m 644 zhw_cache.h ${DESTDIR}/usr/local/include/libzhw
-	install -m 644 zhw_word_split.h ${DESTDIR}/usr/local/include/libzhw
-	install -m 644 zhw_tcp.h ${DESTDIR}/usr/local/include/libzhw
-	install -m 755 libzhw.a ${DESTDIR}/usr/local/lib/libzhw
+	mkdir -p ${LIB_ZHW_LIB_INST_DIR}
+	mkdir -p ${LIB_ZHW_HEADER_INST_DIR}
+	install -m 644 zhw_log.h ${LIB_ZHW_HEADER_INST_DIR}
+	install -m 644 zhw_cache.h ${LIB_ZHW_HEADER_INST_DIR}
+	install -m 644 zhw_word_split.h ${LIB_ZHW_HEADER_INST_DIR}
+	install -m 644 zhw_tcp.h ${LIB_ZHW_HEADER_INST_DIR}
+	install -m 755 libzhw.a ${LIB_ZHW_LIB_INST_DIR}
+
 uninstall:
-	rm -rf  ${DESTDIR}/usr/local/libzhw
+	rm -rf  $(LIB_ZHW_INST_ROOT)
